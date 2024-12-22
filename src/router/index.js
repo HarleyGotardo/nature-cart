@@ -6,7 +6,7 @@ const routes = [
     path: '/',
     name: 'landing-page',
     component: LandingPage,
-    meta: { requiresUnauth: true, title: 'Fiber Muscle - Home' }
+    meta: { requiresUnauth: true, title: 'Nature Cart - Login' }
   }
 ];
 

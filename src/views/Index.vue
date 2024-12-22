@@ -1,66 +1,144 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { supabase } from '@/lib/supabaseClient';
-import { RouterLink } from 'vue-router';
+import { ref } from 'vue'
+import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
 
-const sampleData = ref([]);
-const error = ref(null);
+const username = ref('')
+const password = ref('')
 
-onMounted(async () => {
-  let { data: sample, error: err } = await supabase
-    .from('sample')
-    .select('*');
-  
-  if (err) {
-    error.value = err.message;
-  } else {
-    sampleData.value = sample;
-  }
-});
+const handleSubmit = () => {
+  // Handle login logic here
+  console.log('Login attempt with:', username.value, password.value)
+}
 </script>
 
+<style scoped>
+.mask-silhouette {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.text-justify {
+  text-align: justify;
+}
+</style>
+
 <template>
-  <div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
-    <header class="text-center mb-8">
-      <h1 class="text-5xl font-bold mb-4">Nature Cart</h1>
-      <p class="text-lg text-gray-700">Your forest products companion</p>
-    </header>
+  <div class="min-h-screen flex flex-col md:flex-row">
+    <!-- Left Section - Login Form -->
+    <div class="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-12">
+      <div class="max-w-md w-full mx-auto">
+        <div class="flex items-center mb-8">
+          <div class="w-8 h-8">
+            <NatureCartLogo width="64" height="64" />
+          </div>
+          <h1 class="text-2xl md:text-4xl font-bold ml-2">Login to Nature Cart</h1>
+        </div>
 
-    <div class="mb-8">
-      <RouterLink to="/">
-        <button class="bg-blue-500 text-white px-4 py-2 rounded mr-4 hover:bg-blue-700">Login</button>
-      </RouterLink>
+        <div class="mb-8">
+          <p class="text-lg md:text-2xl text-gray-600">Please enter your login information.</p>
+        </div>
+
+        <form @submit.prevent="handleSubmit">
+          <div class="space-y-6">
+            <div>
+              <label
+                for="username"
+                class="block text-sm md:text-md font-medium text-gray-700"
+              >
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                v-model="username"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <div>
+              <label
+                for="password"
+                class="block text-sm md:text-md font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                v-model="password"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Log In
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-sm text-gray-600">
+            No account?
+            <a href="#" class="text-green-600 hover:text-green-500">
+              Request for account registration
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-4">
-      <div class="bg-white shadow-md rounded-lg p-6 text-center">
-        <h2 class="text-xl font-semibold mb-2">Editable Maps</h2>
-        <p class="text-gray-600">Pinpoint the location of forest products.</p>
+    <!-- Right Section - Branding -->
+    <div class="w-full md:w-1/2 bg-green-50 flex flex-col justify-center items-center px-4 md:px-0">
+      <div class="text-center">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+          VSU - Department of Forest Science
+        </h2>
+        <div class="flex flex-col md:flex-row gap-8 justify-center">
+          <!-- VSU Logo -->
+          <div class="w-32 h-32 md:w-40 md:h-40 bg-yellow-400 rounded-lg flex items-center justify-center overflow-hidden">
+            <img src="@/assets/vsu_logo.png" alt="VSU Logo" class="w-full h-full object-contain" />
+          </div>
+          <!-- Leaf Logo -->
+          <div class="w-32 h-32 md:w-40 md:h-40 bg-white-400 rounded-lg flex items-center justify-center overflow-hidden">
+            <img src="@/assets/DFS_logo.png" alt="VSU Logo" class="w-full h-full object-contain" />
+          </div>
+        </div>
+        <!-- Feature Cards -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 w-full px-4 md:px-8">
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center mb-2">
+              <div class="w-12 h-12 rounded-full mr-2">            
+                <img src="@/assets/verify.png" alt="VSU Logo" class="w-full h-full object-contain" />
+              </div>
+              <h3 class="text-lg md:text-xl font-bold">Track Forest Product Collection Records</h3>
+            </div>
+            <p class="text-gray-600 text-justify">Log and monitor forest product collection with precision. Keep detailed records of quantities, types, and collection dates to streamline management and enhance reporting.</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center mb-2">
+              <div class="w-12 h-12 rounded-full mr-2">            
+                <img src="@/assets/location.png" alt="VSU Logo" class="w-full h-full object-contain" />
+              </div>
+              <h3 class="text-lg md:text-xl font-bold">Locate the Locations of Forest Products</h3>
+            </div>
+            <p class="text-gray-600 text-justify">Pinpoint and map exact locations of forest product sources. Facilitate easy tracking, conduct spatial analysis, and optimize resource planning across forested areas.</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex items-center mb-2">
+              <div class="w-12 h-12 rounded-full mr-2">            
+                <img src="@/assets/registered.png" alt="VSU Logo" class="w-full h-full object-contain" />
+              </div>
+              <h3 class="text-lg md:text-xl font-bold">Register Forest Product Collectors</h3>
+            </div>
+            <p class="text-gray-600 text-justify">Maintain a comprehensive database of authorized forest product collectors. Ensure accurate registration with complete personal and professional details.</p>
+          </div>
+        </div>
       </div>
-      <div class="bg-white shadow-md rounded-lg p-6 text-center">
-        <h2 class="text-xl font-semibold mb-2">Recording Collections</h2>
-        <p class="text-gray-600">Records the forest product collections with ease.</p>
-      </div>
-      <div class="bg-white shadow-md rounded-lg p-6 text-center">
-        <h2 class="text-xl font-semibold mb-2">Administrative and Other Roles Access</h2>
-        <p class="text-gray-600">Can be accessed by different variations of roles.</p>
-      </div>
-    </div>
-
-    <div v-if="error" class="text-red-500">{{ error }}</div>
-    <div v-else class="mt-8">
-      <h2 class="text-2xl font-bold mb-4">Sample Data</h2>
-      <ul>
-        <li v-for="item in sampleData" :key="item.id" class="text-gray-700">{{ item.name }}</li>
-      </ul>
     </div>
   </div>
 </template>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
-body {
-  font-family: 'Roboto', sans-serif;
-}
-</style>
