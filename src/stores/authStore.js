@@ -11,5 +11,6 @@ export const useAuthStore = defineStore('auth', {
     clearUser() {
       this.user = null
     }
-  }
+  },
+  persist: true
 })
