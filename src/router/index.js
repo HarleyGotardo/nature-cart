@@ -1,23 +1,23 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import LandingPage from '@/views/Index.vue';
+import { createRouter, createWebHistory } from 'vue-router'
+import Index from '@/views/Index.vue'
+import Auth_Layout from '@/views/Authenticated/Auth_Layout.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'landing-page',
-    component: LandingPage,
-    meta: { requiresUnauth: true, title: 'Nature Cart - Login' }
+    name: 'Index',
+    component: Index
+  },
+  {
+    path: '/authenticated',
+    name: 'Authenticated',
+    component: Auth_Layout
   }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-});
+})
 
-router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || 'Fiber Muscle';
-  next();
-});
-
-export default router;
+export default router

@@ -1,13 +1,59 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
+import bcrypt from 'bcryptjs'
+import Swal from 'sweetalert2'
+import { supabase } from '@/lib/supabaseClient'
 
-const username = ref('')
+const router = useRouter()
+const authStore = useAuthStore()
+
+const email = ref('')
 const password = ref('')
+const usersTable = ref([])
 
-const handleSubmit = () => {
-  // Handle login logic here
-  console.log('Login attempt with:', username.value, password.value)
+// Fetch users from Supabase
+const fetchUsers = async () => {
+  let { data: users, error } = await supabase
+    .from('users')
+    .select('*')
+
+  if (error) {
+    console.error('Error fetching users:', error)
+  } else {
+    usersTable.value = users
+  }
+}
+
+onMounted(() => {
+  fetchUsers()
+})
+
+const handleSubmit = async () => {
+  const user = usersTable.value.find(user => user.email === email.value)
+
+  if (user && await bcrypt.compare(password.value, user.password)) {
+    authStore.setUser(user)
+    Swal.fire({
+      icon: 'success',
+      title: 'Login Successful',
+      text: 'You have successfully logged in!',
+      timer: 2000,
+      showConfirmButton: false
+    }).then(() => {
+      router.push({ name: 'Authenticated' })
+    })
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Login Failed',
+      text: 'Invalid email or password',
+      timer: 2000,
+      showConfirmButton: false
+    })
+  }
 }
 </script>
 
@@ -44,15 +90,15 @@ const handleSubmit = () => {
           <div class="space-y-6">
             <div>
               <label
-                for="username"
+                for="email"
                 class="block text-sm md:text-md font-medium text-gray-700"
               >
-                Username
+                Email
               </label>
               <input
-                id="username"
-                type="text"
-                v-model="username"
+                id="email"
+                type="email"
+                v-model="email"
                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
