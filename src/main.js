@@ -14,7 +14,4 @@ app.use(pinia)
 app.use(router)
 app.mount('#app')
 
-// Enable Vue Devtools
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production') {
-  app.config.devtools = true
-}
+app.config.devtools = true
