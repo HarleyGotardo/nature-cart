@@ -141,7 +141,7 @@ const confirmLogout = () => {
         <!-- Add other navigation items -->
       </nav>
 
-      <!-- User Profile -->
+      <!-- User Profileeeeee -->
       <div class="absolute bottom-8 left-4 right-4">
         <div class="flex items-center gap-3 p-3 border-t">
           <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
