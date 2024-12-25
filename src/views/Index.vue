@@ -28,7 +28,11 @@ const fetchUsers = async () => {
 }
 
 onMounted(() => {
-  fetchUsers()
+  if (authStore.isAuthenticated) {
+    router.push({ name: 'Authenticated' })
+  } else {
+    fetchUsers()
+  }
 })
 
 const handleSubmit = async () => {

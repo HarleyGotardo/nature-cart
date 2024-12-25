@@ -10,7 +10,13 @@ export const useAuthStore = defineStore('auth', {
     },
     clearUser() {
       this.user = null
+    },
+    getUser() {
+      return this.user
     }
+  },
+  getters: {
+    isAuthenticated: (state) => !!state.user,
   },
   persist: true
 })
