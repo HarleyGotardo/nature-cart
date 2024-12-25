@@ -77,7 +77,8 @@ const confirmLogout = () => {
             </svg>
             <span>Records</span>
             <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-if="!isRecordsDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
             </svg>
           </button>
           <div v-if="isRecordsDropdownOpen" class="ml-6 space-y-2">
@@ -94,7 +95,8 @@ const confirmLogout = () => {
             </svg>
             <span>Forest Products</span>
             <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-if="!isForestProductsDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
             </svg>
           </button>
           <div v-if="isForestProductsDropdownOpen" class="ml-6 space-y-2">
@@ -111,7 +113,8 @@ const confirmLogout = () => {
             </svg>
             <span>Registered Collectors</span>
             <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-if="!isCollectorsDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
             </svg>
           </button>
           <div v-if="isCollectorsDropdownOpen" class="ml-6 space-y-2">
@@ -128,7 +131,8 @@ const confirmLogout = () => {
             </svg>
             <span>System Users</span>
             <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-if="!isSystemUsersDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
             </svg>
           </button>
           <div v-if="isSystemUsersDropdownOpen" class="ml-6 space-y-2">
@@ -141,7 +145,7 @@ const confirmLogout = () => {
         <!-- Add other navigation items -->
       </nav>
 
-      <!-- User Profileeeeee -->
+      <!-- User Profile -->
       <div class="absolute bottom-8 left-4 right-4">
         <div class="flex items-center gap-3 p-3 border-t">
           <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
