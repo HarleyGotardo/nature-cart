@@ -1,8 +1,14 @@
+ature-carts/src/views/Authenticated/Auth_Layout.vue
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import Swal from 'sweetalert2'
+import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
+import Records from '@/components/SideBarItems/Records.vue'
+import ForestProducts from '@/components/SideBarItems/ForestProducts.vue'
+import Collectors from '@/components/SideBarItems/Collectors.vue'
+import SystemUsers from '@/components/SideBarItems/SystemUsers.vue'
+import SweetAlert from '@/components/SweetAlert.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -27,28 +33,9 @@ const toggleSystemUsersDropdown = () => {
   isSystemUsersDropdownOpen.value = !isSystemUsersDropdownOpen.value
 }
 
-const confirmLogout = () => {
-  Swal.fire({
-    title: 'Confirm Logout',
-    text: "Are you sure you want to log out?",
-    icon: 'warning',
-    showCancelButton: true,
-    cancelButtonText: 'Cancel',
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Log Out'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      authStore.clearUser()
-      Swal.fire(
-        'Logged Out!',
-        'You have been logged out.',
-        'success'
-      ).then(() => {
-        router.push({ name: 'Index' })
-      })
-    }
-  })
+const handleLogout = () => {
+  authStore.clearUser()
+  router.push({ name: 'Index' })
 }
 </script>
 
@@ -57,92 +44,58 @@ const confirmLogout = () => {
     <!-- Sidebar -->
     <aside class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg p-4">
       <div class="flex items-center gap-2 mb-8">
-        <div class="w-8 h-8 bg-emerald-400 rounded-lg"></div>
+        <div class="w-8 h-8 rounded-lg">
+          <NatureCartLogo />
+        </div>
         <h1 class="text-xl font-bold">Nature Cart</h1>
       </div>
 
       <!-- Navigation -->
       <nav class="space-y-2">
         <router-link to="/authenticated/dashboard" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          <img src="@/assets/dashboard.png" alt="Dashboard" class="w-6 h-6" />
           <span>Dashboard</span>
         </router-link>
+        <router-link to="/authenticated/map" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
+          <img src="@/assets/forest-map.png" alt="Dashboard" class="w-6 h-6" />
+          <span>Forest Products Map</span>
+        </router-link>
         
-        <div>
-          <button @click="toggleRecordsDropdown" class="flex items-center gap-3 p-3 w-full text-left hover:bg-gray-100 rounded-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <span>Records</span>
-            <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isRecordsDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
-            </svg>
-          </button>
-          <div v-if="isRecordsDropdownOpen" class="ml-6 space-y-2">
-            <router-link to="/authenticated/records/record1" class="block p-2 hover:bg-gray-100 rounded-lg">Record 1</router-link>
-            <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Record 2</router-link>
-            <!-- Add other record links here -->
-          </div>
-        </div>
+        <Records
+          :isDropdownOpen="isRecordsDropdownOpen"
+          @toggleDropdown="toggleRecordsDropdown"
+          label="Records"
+        >
+          <router-link to="/authenticated/records/record1" class="block p-2 hover:bg-gray-100 rounded-lg">Record 1</router-link>
+          <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Record 2</router-link>
+        </Records>
 
-        <div>
-          <button @click="toggleForestProductsDropdown" class="flex items-center gap-3 p-3 w-full text-left hover:bg-gray-100 rounded-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <span>Forest Products</span>
-            <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isForestProductsDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
-            </svg>
-          </button>
-          <div v-if="isForestProductsDropdownOpen" class="ml-6 space-y-2">
-            <router-link to="/authenticated/forest-products/product1" class="block p-2 hover:bg-gray-100 rounded-lg">Product 1</router-link>
-            <router-link to="/authenticated/forest-products/product2" class="block p-2 hover:bg-gray-100 rounded-lg">Product 2</router-link>
-            <!-- Add other product links here -->
-          </div>
-        </div>
+        <ForestProducts
+          :isDropdownOpen="isForestProductsDropdownOpen"
+          @toggleDropdown="toggleForestProductsDropdown"
+          label="Forest Products"
+        >
+          <router-link to="/authenticated/forest-products/product1" class="block p-2 hover:bg-gray-100 rounded-lg">Product 1</router-link>
+          <router-link to="/authenticated/forest-products/product2" class="block p-2 hover:bg-gray-100 rounded-lg">Product 2</router-link>
+        </ForestProducts>
 
-        <div>
-          <button @click="toggleCollectorsDropdown" class="flex items-center gap-3 p-3 w-full text-left hover:bg-gray-100 rounded-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <span>Registered Collectors</span>
-            <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isCollectorsDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
-            </svg>
-          </button>
-          <div v-if="isCollectorsDropdownOpen" class="ml-6 space-y-2">
-            <router-link to="/authenticated/collectors/collector1" class="block p-2 hover:bg-gray-100 rounded-lg">Collector 1</router-link>
-            <router-link to="/authenticated/collectors/collector2" class="block p-2 hover:bg-gray-100 rounded-lg">Collector 2</router-link>
-            <!-- Add other collector links here -->
-          </div>
-        </div>
+        <Collectors
+          :isDropdownOpen="isCollectorsDropdownOpen"
+          @toggleDropdown="toggleCollectorsDropdown"
+          label="Collectors"
+        >
+          <router-link to="/authenticated/collectors/collector1" class="block p-2 hover:bg-gray-100 rounded-lg">Collector 1</router-link>
+          <router-link to="/authenticated/collectors/collector2" class="block p-2 hover:bg-gray-100 rounded-lg">Collector 2</router-link>
+        </Collectors>
 
-        <div>
-          <button @click="toggleSystemUsersDropdown" class="flex items-center gap-3 p-3 w-full text-left hover:bg-gray-100 rounded-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <span>System Users</span>
-            <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isSystemUsersDropdownOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 15l-7-7-7 7" />
-            </svg>
-          </button>
-          <div v-if="isSystemUsersDropdownOpen" class="ml-6 space-y-2">
-            <router-link to="/authenticated/system-users/user1" class="block p-2 hover:bg-gray-100 rounded-lg">User 1</router-link>
-            <router-link to="/authenticated/system-users/user2" class="block p-2 hover:bg-gray-100 rounded-lg">User 2</router-link>
-            <!-- Add other user links here -->
-          </div>
-        </div>
-
-        <!-- Add other navigation items -->
+        <SystemUsers
+          :isDropdownOpen="isSystemUsersDropdownOpen"
+          @toggleDropdown="toggleSystemUsersDropdown"
+          label="System Users"
+        >
+          <router-link to="/authenticated/system-users/user1" class="block p-2 hover:bg-gray-100 rounded-lg">User 1</router-link>
+          <router-link to="/authenticated/system-users/user2" class="block p-2 hover:bg-gray-100 rounded-lg">User 2</router-link>
+        </SystemUsers>
       </nav>
 
       <!-- User Profile -->
@@ -154,12 +107,15 @@ const confirmLogout = () => {
             <p class="text-sm text-gray-500">Administrator</p>
           </div>
         </div>
-        <button
-          @click="confirmLogout"
-          class="w-full mt-4 px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        <SweetAlert
+          title="Confirm Logout"
+          text="Are you sure you want to log out?"
+          icon="warning"
+          confirmButtonText="Log Out"
+          @confirmed="handleLogout"
         >
           Log Out
-        </button>
+        </SweetAlert>
       </div>
     </aside>
 
