@@ -29,7 +29,7 @@ const fetchUsers = async () => {
 
 onMounted(() => {
   if (authStore.isAuthenticated) {
-    router.push({ name: 'Authenticated' })
+    router.push({ name: 'Dashboard' })
   } else {
     fetchUsers()
   }
@@ -47,7 +47,7 @@ const handleSubmit = async () => {
       timer: 2000,
       showConfirmButton: false
     }).then(() => {
-      router.push({ name: 'Authenticated' })
+      router.push({ name: 'Dashboard' })
     })
   } else {
     Swal.fire({
