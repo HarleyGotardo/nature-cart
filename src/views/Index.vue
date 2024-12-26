@@ -143,7 +143,7 @@ const handleSubmit = async () => {
         </h2>
         
         <!-- Logos Section -->
-        <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-between items-center mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center mb-6 sm:mb-8">
           <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 bg-yellow-400 rounded-lg flex items-center justify-center overflow-hidden p-2">
             <img src="@/assets/vsu_logo.png" alt="VSU Logo" class="w-full h-full object-contain" />
           </div>
