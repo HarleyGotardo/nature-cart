@@ -1,4 +1,3 @@
-ature-carts/src/views/Authenticated/Auth_Layout.vue
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -16,6 +15,15 @@ const isRecordsDropdownOpen = ref(false)
 const isForestProductsDropdownOpen = ref(false)
 const isCollectorsDropdownOpen = ref(false)
 const isSystemUsersDropdownOpen = ref(false)
+const isSidebarOpen = ref(false) // New state for sidebar visibility
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
 
 const toggleRecordsDropdown = () => {
   isRecordsDropdownOpen.value = !isRecordsDropdownOpen.value
@@ -40,9 +48,43 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 flex">
+  <div class="min-h-screen bg-gray-50 relative">
+    <!-- Burger Menu Button -->
+    <button 
+      @click="toggleSidebar"
+      :class="`md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg transition-opacity duration-300 ${
+        isSidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`"
+    >
+      <svg 
+        class="w-6 h-6" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24"
+      >
+        <path 
+          v-if="!isSidebarOpen" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          stroke-width="2" 
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
+
+    <!-- Overlay -->
+    <div 
+      v-if="isSidebarOpen" 
+      @click="closeSidebar"
+      class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+    ></div>
+
     <!-- Sidebar -->
-    <aside class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg p-4">
+    <aside 
+      :class="`fixed top-0 left-0 h-full w-64 bg-white shadow-lg p-4 transition-transform duration-300 ease-in-out z-40 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } md:translate-x-0`"
+    >
       <div class="flex items-center gap-2 mb-8">
         <div class="w-8 h-8 rounded-lg">
           <NatureCartLogo />
@@ -120,7 +162,11 @@ const handleLogout = () => {
     </aside>
 
     <!-- Main Content -->
-    <main class="ml-64 p-8 w-full">
+    <main 
+      :class="`transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'ml-0 md:ml-64' : 'ml-0 md:ml-64'
+      } p-4 md:p-8`"
+    >
       <router-view />
     </main>
   </div>
@@ -129,5 +175,15 @@ const handleLogout = () => {
 <style scoped>
 .router-link-active {
   @apply bg-emerald-50;
+}
+
+/* Add smooth transition for sidebar */
+aside {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Prevent scrolling when sidebar is open on mobile */
+.overflow-hidden {
+  overflow: hidden;
 }
 </style>

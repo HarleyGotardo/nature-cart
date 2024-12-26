@@ -41,11 +41,11 @@ const handleSubmit = async () => {
     authStore.setUser(user)
     Swal.fire({
       icon: 'success',
-      title: 'Login Successful',
-      text: 'You have successfully logged in!',
+      title: 'Login Successful!',
+      text: 'You are ready to proceed using Nature Cart',
       timer: 2000,
       showConfirmButton: false
-    }).then(() => {
+    }).then(() => { 
       router.push({ name: 'Dashboard' })
     })
   } else {
