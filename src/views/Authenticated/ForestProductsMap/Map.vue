@@ -26,9 +26,7 @@
         })
         .setView([10.744340, 124.791995], 16);
         L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19
         }).addTo(map);
       });
     },
