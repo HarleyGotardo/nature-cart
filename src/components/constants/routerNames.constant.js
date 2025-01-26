@@ -1,3 +1,3 @@
 export class RouterNamesConstant {
- static FOREST_PRODUCTS = "/authenticated/forest-products";
+  static FOREST_PRODUCTS = "/authenticated/forest-products";
 }

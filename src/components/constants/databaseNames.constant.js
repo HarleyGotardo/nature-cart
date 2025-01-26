@@ -1,3 +1,3 @@
 export class DatabaseNamesConstant {
-    static FOREST_PRODUCTS = 'forest_products';
+  static FOREST_PRODUCTS = "forest_products";
 }

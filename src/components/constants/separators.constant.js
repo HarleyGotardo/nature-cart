@@ -1,3 +1,3 @@
 export class SeparatorConstant {
-    static EMPTY_STRING = "";
+  static EMPTY_STRING = "";
 }
