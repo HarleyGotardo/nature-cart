@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import { format } from 'date-fns'
-
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 
@@ -21,27 +21,36 @@ const handleSubmit = async () => {
   const now = new Date()
   const formattedDate = format(now, 'yyyy-MM-dd HH:mm:ss')
 
-  const payload = {
-    name: name.value,
-    description: description.value,
-    quantity: quantity.value,
-    location_name: locationName.value,
-    latitude: latitude.value,
-    longitude: longitude.value,
-    price: price.value,
-    created_at: formattedDate,
-    updated_at: formattedDate,
-  }
-
-  let { data, error } = await supabase
+  const { data, error: insertError } = await supabase
     .from('forest_products')
-    .insert([payload]) 
+    .insert([
+      { 
+        name: name.value, 
+        description: description.value, 
+        type: type.value, 
+        quantity: quantity.value, 
+        location_name: locationName.value, 
+        latitude: latitude.value, 
+        longitude: longitude.value, 
+        price: price.value, 
+        created_at: formattedDate,
+        updated_at: formattedDate
+      }
+    ])
+    .select()
 
-  if (error) {
-    console.error('Error creating forest product:', error.message)
-    error.value = error.message
+  if (insertError) {
+    error.value = insertError.message
   } else {
-    router.push('/authenticated/forest-products')
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Forest product created successfully!',
+      timer: 2000,
+      showConfirmButton: false
+    }).then(() => {
+      router.push('/authenticated/forest-products')
+    })
   }
 }
 </script>
