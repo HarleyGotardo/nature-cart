@@ -4,6 +4,9 @@ import Index from '@/views/Index.vue'
 import Auth_Layout from '@/views/Authenticated/Auth_Layout.vue'
 import Dashboard from '@/views/Authenticated/Dashboard.vue'
 import FP_Collection_Records_Index from '@/views/Authenticated/FP_Collection_Records/Index.vue'
+import Map from '@/views/Authenticated/ForestProductsMap/Map.vue'
+import ForestProducts from '@/views/Authenticated/FP_Collection_Records/Index.vue'
+import ForestProductsCreate from '@/views/Authenticated/FP_Collection_Records/Create.vue'
 
 const routes = [
   {
@@ -25,6 +28,21 @@ const routes = [
         path: 'records',
         name: 'Records',
         component: FP_Collection_Records_Index
+      },
+      {
+        path: 'map',
+        name: 'Map',
+        component: Map
+      },
+      {
+        path: 'forest-products',
+        name: 'ForestProducts',
+        component: ForestProducts
+      },
+      {
+        path: 'forest-products/create',
+        name: 'ForestProductsCreate',
+        component: ForestProductsCreate
       }
       // Add other routes here
     ]

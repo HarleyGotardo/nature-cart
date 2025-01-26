@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
+import NatureCartLogo from '@/components/logo/NatureCartLogo.vue' 
 import bcrypt from 'bcryptjs'
 import Swal from 'sweetalert2'
 import { supabase } from '@/lib/supabaseClient'

@@ -108,8 +108,9 @@ const handleLogout = () => {
           @toggleDropdown="toggleRecordsDropdown"
           label="Records"
         >
-          <router-link to="/authenticated/records/record1" class="block p-2 hover:bg-gray-100 rounded-lg">Record 1</router-link>
-          <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Record 2</router-link>
+          <router-link to="/authenticated/asdasd" class="block p-2 hover:bg-gray-100 rounded-lg">All Records</router-link>
+          <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
+          <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Recycle Bin</router-link>
         </Records>
 
         <ForestProducts
@@ -117,8 +118,8 @@ const handleLogout = () => {
           @toggleDropdown="toggleForestProductsDropdown"
           label="Forest Products"
         >
-          <router-link to="/authenticated/forest-products/product1" class="block p-2 hover:bg-gray-100 rounded-lg">Product 1</router-link>
-          <router-link to="/authenticated/forest-products/product2" class="block p-2 hover:bg-gray-100 rounded-lg">Product 2</router-link>
+          <router-link to="/authenticated/forest-products" class="block p-2 hover:bg-gray-100 rounded-lg">All Records</router-link>
+          <router-link to="/authenticated/forest-products/create" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
         </ForestProducts>
 
         <Collectors
