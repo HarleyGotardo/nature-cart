@@ -41,7 +41,7 @@ const toggleSystemUsersDropdown = () => {
   isSystemUsersDropdownOpen.value = !isSystemUsersDropdownOpen.value
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
   authStore.clearUser()
   router.push({ name: 'Index' })
 }
