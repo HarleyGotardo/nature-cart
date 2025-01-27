@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
@@ -14,6 +14,8 @@ const isForestProductsDropdownOpen = ref(false)
 const isCollectorsDropdownOpen = ref(false)
 const isSystemUsersDropdownOpen = ref(false)
 const isSidebarOpen = ref(false) // New state for sidebar visibility
+
+const user = computed(() => authStore.getUser())
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
@@ -42,6 +44,10 @@ const toggleSystemUsersDropdown = () => {
 const handleLogout = () => {
   authStore.clearUser()
   router.push({ name: 'Index' })
+}
+
+const goToProfile = () => {
+  router.push({ name: 'Profile' })
 }
 </script>
 
@@ -128,11 +134,11 @@ const handleLogout = () => {
 
       <!-- User Profile -->
       <div class="absolute bottom-8 left-4 right-4">
-        <div class="flex items-center gap-3 p-3 border-t">
+        <div @click="goToProfile" class="flex items-center gap-3 p-3 border-t cursor-pointer hover:bg-gray-100 rounded-lg">
           <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
           <div>
-            <p class="font-medium">Juan Dela Cruz</p>
-            <p class="text-sm text-gray-500">Administrator</p>
+            <p class="font-medium">{{ user ? `${user.first_name} ${user.last_name}` : 'User' }}</p>
+            <p class="text-sm text-gray-500">Role ID: {{ user ? user.role_id : 'Role' }}</p>
           </div>
         </div>
         <SweetAlert

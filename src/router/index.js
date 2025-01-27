@@ -10,6 +10,7 @@ import SystemUsersIndex from '@/views/Authenticated/SystemUsers/Index.vue'
 import CollectionRecordsIndex from '@/views/Authenticated/CollectionRecords/Index.vue'
 import CollectionRecordsCreate from '@/views/Authenticated/CollectionRecords/Create.vue'
 import CollectionRecordsTrash from '@/views/Authenticated/CollectionRecords/Trash.vue'
+import ProfileIndex from '@/views/Authenticated/ProfileIndex.vue'
 
 const routes = [
   {
@@ -76,6 +77,12 @@ const routes = [
         name: 'CollectionRecordsTrash',
         component: CollectionRecordsTrash,
         meta: { title: 'Collection Records Trash - Nature Cart' }
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileIndex,
+        meta: { title: 'Profile - Nature Cart' }
       }
       // Add other routes here
     ]
