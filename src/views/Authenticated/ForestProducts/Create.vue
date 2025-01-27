@@ -131,7 +131,7 @@ const initializeMap = () => {
 
   mapInstance = L.map("map", {
     zoomControl: true,
-    scrollWheelZoom: false,
+    scrollWheelZoom: true,
     doubleClickZoom: false,
     boxZoom: false,
     keyboard: false,
@@ -260,7 +260,7 @@ const initializeMap = () => {
           id="coordinates"
           type="text"
           readonly
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 hover:cursor-pointer"
           @click="openModal('coordinates')"
           v-model="coordinates"
         />

@@ -3,16 +3,20 @@ import { useAuthStore } from '@/stores/authStore'
 import Index from '@/views/Index.vue'
 import Auth_Layout from '@/views/Authenticated/Auth_Layout.vue'
 import Dashboard from '@/views/Authenticated/Dashboard.vue'
-import FP_Collection_Records_Index from '@/views/Authenticated/FP_Collection_Records/Index.vue'
-import Map from '@/views/Authenticated/ForestProductsMap/Map.vue'
-import ForestProducts from '@/views/Authenticated/FP_Collection_Records/Index.vue'
-import ForestProductsCreate from '@/views/Authenticated/FP_Collection_Records/Create.vue'
+import Map from '@/views/Authenticated/ForestProducts/Map.vue'
+import ForestProductsIndex from '@/views/Authenticated/ForestProducts/Index.vue'
+import ForestProductsCreate from '@/views/Authenticated/ForestProducts/Create.vue'
+import SystemUsersIndex from '@/views/Authenticated/SystemUsers/Index.vue'
+import CollectionRecordsIndex from '@/views/Authenticated/CollectionRecords/Index.vue'
+import CollectionRecordsCreate from '@/views/Authenticated/CollectionRecords/Create.vue'
+import CollectionRecordsTrash from '@/views/Authenticated/CollectionRecords/Trash.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Index',
-    component: Index
+    component: Index,
+    meta: { title: 'Nature Cart - Home' }
   },
   {
     path: '/authenticated',
@@ -22,27 +26,56 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: Dashboard
+        component: Dashboard,
+        meta: { title: 'Dashboard - Nature Cart' }
       },
       {
         path: 'records',
         name: 'Records',
-        component: FP_Collection_Records_Index
+        component: ForestProductsIndex,
+        meta: { title: 'Records - Nature Cart' }
       },
       {
         path: 'map',
         name: 'Map',
-        component: Map
+        component: Map,
+        meta: { title: 'Map - Nature Cart' }
       },
       {
         path: 'forest-products',
         name: 'ForestProducts',
-        component: ForestProducts
+        component: ForestProductsIndex,
+        meta: { title: 'Forest Products - Nature Cart' }
       },
       {
         path: 'forest-products/create',
         name: 'ForestProductsCreate',
-        component: ForestProductsCreate
+        component: ForestProductsCreate,
+        meta: { title: 'Create Forest Product - Nature Cart' }
+      },
+      {
+        path: 'system-users',
+        name: 'SystemUsers',
+        component: SystemUsersIndex,
+        meta: { title: 'System Users - Nature Cart' }
+      },
+      {
+        path: 'collection-records',
+        name: 'CollectionRecords',
+        component: CollectionRecordsIndex,
+        meta: { title: 'Collection Records - Nature Cart' }
+      },
+      {
+        path: 'collection-records/create',
+        name: 'CollectionRecordsCreate',
+        component: CollectionRecordsCreate,
+        meta: { title: 'Create Collection Record - Nature Cart' }
+      },
+      {
+        path: 'collection-records/trash',
+        name: 'CollectionRecordsTrash',
+        component: CollectionRecordsTrash,
+        meta: { title: 'Collection Records Trash - Nature Cart' }
       }
       // Add other routes here
     ]
@@ -69,6 +102,13 @@ router.beforeEach((to, from, next) => {
     } else {
       next()
     }
+  }
+
+  // Set the document title
+  if (to.meta.title) {
+    document.title = to.meta.title
+  } else {
+    document.title = 'Nature Cart'
   }
 })
 

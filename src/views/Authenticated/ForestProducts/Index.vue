@@ -43,7 +43,7 @@
 
 <template>
     <div>
-      <h2 class="text-2xl font-bold mb-4">Forest Products</h2>
+      <h2 class="text-2xl font-bold mb-4 ml-14 mt-1">Forest Products</h2>
       <div v-if="error" class="text-red-500">{{ error }}</div>
       <div v-else>
         <table class="w-full border-collapse">

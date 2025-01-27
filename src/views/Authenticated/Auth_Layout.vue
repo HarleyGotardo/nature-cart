@@ -5,8 +5,6 @@ import { useAuthStore } from '@/stores/authStore'
 import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
 import Records from '@/components/SideBarItems/Records.vue'
 import ForestProducts from '@/components/SideBarItems/ForestProducts.vue'
-import Collectors from '@/components/SideBarItems/Collectors.vue'
-import SystemUsers from '@/components/SideBarItems/SystemUsers.vue'
 import SweetAlert from '@/components/SweetAlert.vue'
 
 const router = useRouter()
@@ -102,15 +100,20 @@ const handleLogout = () => {
           <img src="@/assets/forest-map.png" alt="Dashboard" class="w-6 h-6" />
           <span>Forest Products Map</span>
         </router-link>
+
+        <router-link to="/authenticated/system-users" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
+          <img src="@/assets/user.png" alt="icon" class="w-6 h-6" />
+          <span>System Users</span>
+        </router-link>
         
         <Records
           :isDropdownOpen="isRecordsDropdownOpen"
           @toggleDropdown="toggleRecordsDropdown"
-          label="Records"
+          label="Collection Records"
         >
-          <router-link to="/authenticated/asdasd" class="block p-2 hover:bg-gray-100 rounded-lg">All Records</router-link>
-          <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
-          <router-link to="/authenticated/records/record2" class="block p-2 hover:bg-gray-100 rounded-lg">Recycle Bin</router-link>
+          <router-link to="/authenticated/collection-records" class="block p-2 hover:bg-gray-100 rounded-lg">All Records</router-link>
+          <router-link to="/authenticated/collection-records/create" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
+          <router-link to="/authenticated/collection-records/trash" class="block p-2 hover:bg-gray-100 rounded-lg">Recycle Bin</router-link>
         </Records>
 
         <ForestProducts
@@ -121,24 +124,6 @@ const handleLogout = () => {
           <router-link to="/authenticated/forest-products" class="block p-2 hover:bg-gray-100 rounded-lg">All Records</router-link>
           <router-link to="/authenticated/forest-products/create" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
         </ForestProducts>
-
-        <Collectors
-          :isDropdownOpen="isCollectorsDropdownOpen"
-          @toggleDropdown="toggleCollectorsDropdown"
-          label="Collectors"
-        >
-          <router-link to="/authenticated/collectors/collector1" class="block p-2 hover:bg-gray-100 rounded-lg">Collector 1</router-link>
-          <router-link to="/authenticated/collectors/collector2" class="block p-2 hover:bg-gray-100 rounded-lg">Collector 2</router-link>
-        </Collectors>
-
-        <SystemUsers
-          :isDropdownOpen="isSystemUsersDropdownOpen"
-          @toggleDropdown="toggleSystemUsersDropdown"
-          label="System Users"
-        >
-          <router-link to="/authenticated/system-users/user1" class="block p-2 hover:bg-gray-100 rounded-lg">User 1</router-link>
-          <router-link to="/authenticated/system-users/user2" class="block p-2 hover:bg-gray-100 rounded-lg">User 2</router-link>
-        </SystemUsers>
       </nav>
 
       <!-- User Profile -->
