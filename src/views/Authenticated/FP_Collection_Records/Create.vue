@@ -130,7 +130,7 @@ const initializeMap = () => {
   }
 
   mapInstance = L.map("map", {
-    zoomControl: false,
+    zoomControl: true,
     scrollWheelZoom: false,
     doubleClickZoom: false,
     boxZoom: false,
