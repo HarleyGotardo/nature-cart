@@ -44,7 +44,8 @@ export class CommonConstant {
   static SWAL = {
     ICON: "success",
     TITLE: "Success",
-    TEXT: "Forest product created successfully!",
+    TEXT_FORESTPRODUCT: "Forest product created successfully!",
+    TEXT_LOCATION: "Location created successfully!",
     TIMER: 2000,
     SHOW_CONFIRM_BUTTON: false,
   };

@@ -6,14 +6,19 @@ import NatureCartLogo from '@/components/logo/NatureCartLogo.vue'
 import Records from '@/components/SideBarItems/Records.vue'
 import ForestProducts from '@/components/SideBarItems/ForestProducts.vue'
 import SweetAlert from '@/components/SweetAlert.vue'
+import Locations from '@/components/SideBarItems/Locations.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const isRecordsDropdownOpen = ref(false)
-const isForestProductsDropdownOpen = ref(false)
-const isCollectorsDropdownOpen = ref(false)
-const isSystemUsersDropdownOpen = ref(false)
-const isSidebarOpen = ref(false) // New state for sidebar visibility
+const activeDropdown = ref(null) // Track active dropdown
+const isSidebarOpen = ref(false)
+
+// Computed properties for dropdown states
+const isRecordsDropdownOpen = computed(() => activeDropdown.value === 'records')
+const isForestProductsDropdownOpen = computed(() => activeDropdown.value === 'forestProducts')
+const isCollectorsDropdownOpen = computed(() => activeDropdown.value === 'collectors')
+const isSystemUsersDropdownOpen = computed(() => activeDropdown.value === 'systemUsers')
+const isLocationDropdownOpen = computed(() => activeDropdown.value === 'locations')
 
 const user = computed(() => authStore.getUser())
 
@@ -25,20 +30,25 @@ const closeSidebar = () => {
   isSidebarOpen.value = false
 }
 
+// Modified toggle functions
 const toggleRecordsDropdown = () => {
-  isRecordsDropdownOpen.value = !isRecordsDropdownOpen.value
+  activeDropdown.value = activeDropdown.value === 'records' ? null : 'records'
+}
+
+const toggleLocationDropdown = () => {
+  activeDropdown.value = activeDropdown.value === 'locations' ? null : 'locations'
 }
 
 const toggleForestProductsDropdown = () => {
-  isForestProductsDropdownOpen.value = !isForestProductsDropdownOpen.value
+  activeDropdown.value = activeDropdown.value === 'forestProducts' ? null : 'forestProducts'
 }
 
 const toggleCollectorsDropdown = () => {
-  isCollectorsDropdownOpen.value = !isCollectorsDropdownOpen.value
+  activeDropdown.value = activeDropdown.value === 'collectors' ? null : 'collectors'
 }
 
 const toggleSystemUsersDropdown = () => {
-  isSystemUsersDropdownOpen.value = !isSystemUsersDropdownOpen.value
+  activeDropdown.value = activeDropdown.value === 'systemUsers' ? null : 'systemUsers'
 }
 
 const handleLogout = async () => {
@@ -107,11 +117,16 @@ const goToProfile = () => {
           <span>Forest Products Map</span>
         </router-link>
 
-        <router-link to="/authenticated/system-users" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
-          <img src="@/assets/user.png" alt="icon" class="w-6 h-6" />
-          <span>System Users</span>
-        </router-link>
-        
+
+        <Locations
+          :isDropdownOpen="isLocationDropdownOpen"
+          @toggleDropdown="toggleLocationDropdown"
+          label="Locations"
+        >
+          <router-link to="/authenticated/locations" class="block p-2 hover:bg-gray-100 rounded-lg">All Locations</router-link>
+          <router-link to="/authenticated/locations/create" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
+          <router-link to="/authenticated/locations/trash" class="block p-2 hover:bg-gray-100 rounded-lg">Recycle Bin</router-link>
+        </Locations>
         <Records
           :isDropdownOpen="isRecordsDropdownOpen"
           @toggleDropdown="toggleRecordsDropdown"
@@ -127,9 +142,15 @@ const goToProfile = () => {
           @toggleDropdown="toggleForestProductsDropdown"
           label="Forest Products"
         >
-          <router-link to="/authenticated/forest-products" class="block p-2 hover:bg-gray-100 rounded-lg">All Records</router-link>
+          <router-link to="/authenticated/forest-products" class="block p-2 hover:bg-gray-100 rounded-lg">All Forest Products</router-link>
           <router-link to="/authenticated/forest-products/create" class="block p-2 hover:bg-gray-100 rounded-lg">Create</router-link>
         </ForestProducts>
+
+        
+        <router-link to="/authenticated/system-users" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
+          <img src="@/assets/user.png" alt="icon" class="w-6 h-6" />
+          <span>System Users</span>
+        </router-link>
       </nav>
 
       <!-- User Profile -->

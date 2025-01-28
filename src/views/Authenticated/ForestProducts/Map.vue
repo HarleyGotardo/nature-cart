@@ -3,8 +3,33 @@
     <h2 class="text-2xl font-bold mb-4 ml-14 mt-1">Forest Product Map</h2>
     <!-- Map container -->
     <div id="map" class="h-[500px] w-full"></div>
+
+    <!-- Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <h3 class="text-xl font-bold mb-4">Forest Products at {{ selectedLocation?.name }}</h3>
+        <div class="space-y-4">
+          <div v-for="product in selectedLocationProducts" :key="product.id" class="border-b pb-4">
+            <h4 class="font-semibold">{{ product.name }}</h4>
+            <p class="text-gray-600">{{ product.description }}</p>
+            <div class="mt-2 grid grid-cols-2 gap-4">
+              <p><span class="font-medium">Type:</span> {{ product.type === 'T' ? 'Timber' : 'Non-Timber' }}</p>
+              <p><span class="font-medium">Quantity:</span> {{ product.quantity }}</p>
+              <p><span class="font-medium">Price:</span> ₱{{ product.price }}</p>
+            </div>
+          </div>
+        </div>
+        <button 
+          @click="showModal = false"
+          class="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from "vue";
 import L from "leaflet";
@@ -23,22 +48,51 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 })
 
-const forestProducts = ref([])
+const locations = ref([])
+const showModal = ref(false)
+const selectedLocation = ref(null)
+const selectedLocationProducts = ref([])
 
-const fetchForestProducts = async () => {
+const fetchLocationsWithProducts = async () => {
   let { data, error } = await supabase
-    .from('forest_products')
-    .select('longitude, latitude, name')
+    .from('location')
+    .select(`
+      id,
+      name,
+      latitude,
+      longitude,
+      fp_and_location (
+        forest_products (
+          id,
+          name,
+          description,
+          type,
+          quantity,
+          price
+        )
+      )
+    `)
 
   if (error) {
-    console.error('Error fetching forest products:', error)
+    console.error('Error fetching locations:', error)
   } else {
-    forestProducts.value = data
+    locations.value = data
   }
 }
 
+const showLocationDetails = async (location) => {
+  selectedLocation.value = location
+  
+  // Transform the nested data structure
+  selectedLocationProducts.value = location.fp_and_location
+    .map(fp => fp.forest_products)
+    .filter(Boolean)
+  
+  showModal.value = true
+}
+
 onMounted(async () => {
-  await fetchForestProducts()
+  await fetchLocationsWithProducts()
 
   const map = L.map("map", {
     dragging: true,
@@ -54,16 +108,25 @@ onMounted(async () => {
     maxZoom: 19
   }).addTo(map);
 
-  forestProducts.value.forEach(product => {
-    L.marker([product.latitude, product.longitude])
-      .addTo(map)
-      .bindPopup(`<b>${product.name}</b>`)
+  locations.value.forEach(location => {
+    if (location.latitude && location.longitude) {
+      L.marker([location.latitude, location.longitude])
+        .addTo(map)
+        .bindPopup(`<b>${location.name}</b>`)
+        .on('click', () => showLocationDetails(location))
+    }
   })
 });
 </script>
+
 <style scoped>
 #map {
   height: 500px;
   z-index: 1;
+}
+
+/* Ensure modal appears above map */
+.fixed {
+  z-index: 1000;
 }
 </style>

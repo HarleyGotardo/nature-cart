@@ -11,6 +11,9 @@ import CollectionRecordsIndex from '@/views/Authenticated/CollectionRecords/Inde
 import CollectionRecordsCreate from '@/views/Authenticated/CollectionRecords/Create.vue'
 import CollectionRecordsTrash from '@/views/Authenticated/CollectionRecords/Trash.vue'
 import ProfileIndex from '@/views/Authenticated/ProfileIndex.vue'
+import LocationsIndex from '@/views/Authenticated/Location/Index.vue'
+import LocationsCreate from '@/views/Authenticated/Location/Create.vue'
+import LocationsTrash from '@/views/Authenticated/Location/Trash.vue'
 
 const routes = [
   {
@@ -77,6 +80,30 @@ const routes = [
         name: 'CollectionRecordsTrash',
         component: CollectionRecordsTrash,
         meta: { title: 'Collection Records Trash - Nature Cart' }
+      },
+      {
+        path: 'locations',
+        name: 'LocationsIndex',
+        component: LocationsIndex,
+        meta: { title: 'Locations - Nature Cart' }
+      },
+      {
+        path: 'locations',
+        name: 'LocationsIndex',
+        component: LocationsIndex,
+        meta: { title: 'Locations - Nature Cart' }
+      },
+      {
+        path: 'locations/create',
+        name: 'LocationsCreate',
+        component: LocationsCreate,
+        meta: { title: 'Create Locations - Nature Cart' }
+      },
+      {
+        path: 'locations/trash',
+        name: 'LocationsTrash',
+        component: LocationsTrash,
+        meta: { title: 'Trash Locations - Nature Cart' }
       },
       {
         path: 'profile',
