@@ -59,7 +59,6 @@ const showLocationDetails = async (location) => {
   
   showModal.value = true
 }
-
 onMounted(async () => {
   await fetchLocationsWithProducts()
 
@@ -81,7 +80,12 @@ onMounted(async () => {
     if (location.latitude && location.longitude) {
       L.marker([location.latitude, location.longitude])
         .addTo(map)
-        .bindPopup(`<b>${location.name}</b>`)
+        .bindTooltip(location.name, {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -32],
+          className: 'bg-white px-2 py-1 rounded shadow-lg'
+        })
         .on('click', () => showLocationDetails(location))
     }
   })
@@ -123,7 +127,7 @@ onMounted(async () => {
 </template>
 <style scoped>
 #map {
-  height: 500px;
+  height: 800px;
   z-index: 1;
 }
 

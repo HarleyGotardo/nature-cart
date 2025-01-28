@@ -16,6 +16,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -48,7 +49,6 @@ const fetchLocations = async () => {
     locations.value = data;
   }
 };
-
 const initializeMap = () => {
   if (mapInstance.value) {
     mapInstance.value.remove();
@@ -60,16 +60,21 @@ const initializeMap = () => {
     maxZoom: 19
   }).addTo(mapInstance.value);
 
-  // Add existing location markers
+  // Add existing location markers with tooltips
   locations.value.forEach(location => {
     L.marker([location.latitude, location.longitude])
       .addTo(mapInstance.value)
-      .bindPopup(location.name)
+      .bindTooltip(location.name, {
+        permanent: true,
+        direction: 'top',
+        className: 'bg-white px-2 py-1 rounded shadow-lg'
+      })
       .on('click', () => {
         selectedLocation.value = location;
         showLocationModal.value = false;
       });
   });
+
 
   // Handle map click for new location
   mapInstance.value.on('click', async (e) => {
