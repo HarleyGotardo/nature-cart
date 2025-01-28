@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 
+const router = useRouter()
 const forestProducts = ref([])
 const error = ref(null)
 const currentPage = ref(1)
@@ -35,10 +37,6 @@ const fetchForestProducts = async (page) => {
   }
 }
 
-onMounted(() => {
-  fetchForestProducts(currentPage.value)
-})
-
 const nextPage = () => {
   currentPage.value++
   fetchForestProducts(currentPage.value)
@@ -50,6 +48,14 @@ const prevPage = () => {
     fetchForestProducts(currentPage.value)
   }
 }
+
+const viewProduct = (productId) => {
+  router.push(`/authenticated/forest-products/${productId}`)
+}
+
+onMounted(() => {
+  fetchForestProducts(currentPage.value)
+})
 </script>
 
 <template>
@@ -69,7 +75,12 @@ const prevPage = () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in forestProducts" :key="product.id" class="border-b">
+          <tr 
+            v-for="product in forestProducts" 
+            :key="product.id" 
+            class="border-b hover:bg-green-200 cursor-pointer"
+            @click="viewProduct(product.id)"
+          >
             <td class="px-4 py-2">{{ product.id }}</td>
             <td class="px-4 py-2">{{ product.name }}</td>
             <td class="px-4 py-2">{{ product.type === 'T' ? 'Timber' : 'Non-Timber' }}</td>
@@ -85,7 +96,7 @@ const prevPage = () => {
                 </span>
               </div>
             </td>
-            <td class="px-4 py-2">
+            <td class="px-4 py-2" @click.stop>
               <div class="flex space-x-2">
                 <button class="text-blue-500 hover:text-blue-700">
                   <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -15,6 +15,7 @@ import LocationsIndex from '@/views/Authenticated/Location/Index.vue'
 import LocationsCreate from '@/views/Authenticated/Location/Create.vue'
 import LocationsTrash from '@/views/Authenticated/Location/Trash.vue'
 import LocationsView from '@/views/Authenticated/Location/View.vue'
+import ForestProductsView from '@/views/Authenticated/ForestProducts/View.vue'
 
 const routes = [
   {
@@ -57,6 +58,12 @@ const routes = [
         name: 'ForestProductsCreate',
         component: ForestProductsCreate,
         meta: { title: 'Create Forest Product - Nature Cart' }
+      },
+      {
+        path: 'forest-products/:id',
+        name: 'ForestProductsView',
+        component: ForestProductsView,
+        meta: { title: 'View Forest Product - Nature Cart' }
       },
       {
         path: 'system-users',
