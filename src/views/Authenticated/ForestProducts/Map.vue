@@ -1,9 +1,9 @@
-
 <script setup>
 import { ref, onMounted } from "vue";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { supabase } from '@/lib/supabaseClient'
+import { computed } from 'vue'
 
 // Fix for the default icon issue
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -21,6 +21,8 @@ const locations = ref([])
 const showModal = ref(false)
 const selectedLocation = ref(null)
 const selectedLocationProducts = ref([])
+const currentPage = ref(1)
+const itemsPerPage = 3
 
 const fetchLocationsWithProducts = async () => {
   let { data, error } = await supabase
@@ -59,6 +61,25 @@ const showLocationDetails = async (location) => {
   
   showModal.value = true
 }
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return selectedLocationProducts.value.slice(start, end)
+})
+
+const nextPage = () => {
+  if ((currentPage.value * itemsPerPage) < selectedLocationProducts.value.length) {
+    currentPage.value++
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
+}
+
 onMounted(async () => {
   await fetchLocationsWithProducts()
 
@@ -92,20 +113,18 @@ onMounted(async () => {
 });
 </script>
 
-
-
 <template>
   <div>
     <h2 class="text-2xl font-bold mb-4 ml-14 mt-1">Forest Product Map</h2>
     <!-- Map container -->
-    <div id="map" class="h-[500px] w-full"></div>
+    <div id="map" class="h-[500px] w-full rounded-lg shadow-md"></div>
 
     <!-- Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
         <h3 class="text-xl font-bold mb-4">Forest Products at {{ selectedLocation?.name }}</h3>
         <div class="space-y-4">
-          <div v-for="product in selectedLocationProducts" :key="product.id" class="border-b pb-4">
+          <div v-for="product in paginatedProducts" :key="product.id" class="border-b pb-4">
             <h4 class="font-semibold">{{ product.name }}</h4>
             <p class="text-gray-600">{{ product.description }}</p>
             <div class="mt-2 grid grid-cols-2 gap-4">
@@ -114,6 +133,22 @@ onMounted(async () => {
               <p><span class="font-medium">Price:</span> ₱{{ product.price }}</p>
             </div>
           </div>
+        </div>
+        <div class="flex justify-between mt-4">
+          <button 
+            @click="prevPage" 
+            :disabled="currentPage === 1"
+            class="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <button 
+            @click="nextPage" 
+            :disabled="(currentPage * itemsPerPage) >= selectedLocationProducts.length"
+            class="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
         <button 
           @click="showModal = false"
@@ -125,10 +160,13 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
 <style scoped>
 #map {
-  height: 800px;
+  height: 500px;
   z-index: 1;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Ensure modal appears above map */

@@ -16,7 +16,6 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -49,6 +48,7 @@ const fetchLocations = async () => {
     locations.value = data;
   }
 };
+
 const initializeMap = () => {
   if (mapInstance.value) {
     mapInstance.value.remove();
@@ -74,7 +74,6 @@ const initializeMap = () => {
         showLocationModal.value = false;
       });
   });
-
 
   // Handle map click for new location
   mapInstance.value.on('click', async (e) => {
@@ -174,10 +173,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6">Create Forest Product</h2>
-    <div v-if="error" class="text-red-500 mb-4">{{ error }}</div>
-    <form @submit.prevent="handleSubmit" class="space-y-4">
+  <div class="max-w-7xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Create Forest Product</h2>
+        <p class="mt-1 text-sm text-gray-500">Fill in the details to create a new forest product</p>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div v-if="error" 
+         class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-r-lg">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <p class="ml-3">{{ error }}</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form @submit.prevent="handleSubmit" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden p-6 space-y-4">
       <!-- Name input -->
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
