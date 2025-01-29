@@ -56,6 +56,10 @@ const prevPage = () => {
   }
 }
 
+const editLocation = (locationId) => {
+  router.push(`/authenticated/locations/${locationId}/edit`)
+}
+
 const viewLocation = (locationId) => {
   router.push(`/authenticated/locations/${locationId}`)
 }
@@ -175,7 +179,9 @@ watch(currentPage, () => {
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium" @click.stop>
-                <div class="flex items-center justify-end space-x-3">
+                <div
+                @click="editLocation(location.id)" 
+                class="flex items-center justify-end space-x-3">
                   <button class="p-1 rounded-lg hover:bg-blue-50 transition-colors duration-200 text-blue-600 hover:text-blue-700">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
