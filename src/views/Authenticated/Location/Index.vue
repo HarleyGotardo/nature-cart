@@ -4,26 +4,30 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 
 const router = useRouter()
-const locations = ref([])
+const locations = ref([]) // Store all locations
+const paginatedLocations = ref([]) // Store paginated locations
 const error = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = 7
 const searchQuery = ref('')
 
-const fetchLocations = async (page) => {
-  const start = (page - 1) * itemsPerPage
-  const end = start + itemsPerPage - 1
-
+const fetchAllLocations = async () => {
   let { data, error: fetchError } = await supabase
     .from('location')
     .select('*')
-    .range(start, end)
 
   if (fetchError) {
     error.value = fetchError.message
   } else {
     locations.value = data
+    paginateLocations()
   }
+}
+
+const paginateLocations = () => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  paginatedLocations.value = filteredLocations.value.slice(start, end)
 }
 
 const filteredLocations = computed(() => {
@@ -39,14 +43,16 @@ const filteredLocations = computed(() => {
 })
 
 const nextPage = () => {
-  currentPage.value++
-  fetchLocations(currentPage.value)
+  if ((currentPage.value * itemsPerPage) < filteredLocations.value.length) {
+    currentPage.value++
+    paginateLocations()
+  }
 }
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
-    fetchLocations(currentPage.value)
+    paginateLocations()
   }
 }
 
@@ -59,11 +65,16 @@ const createLocation = () => {
 }
 
 onMounted(() => {
-  fetchLocations(currentPage.value)
+  fetchAllLocations()
 })
 
 watch(searchQuery, () => {
-  fetchLocations(currentPage.value)
+  currentPage.value = 1 // Reset to first page on search query change
+  paginateLocations()
+})
+
+watch(currentPage, () => {
+  paginateLocations()
 })
 </script>
 
@@ -134,7 +145,7 @@ watch(searchQuery, () => {
                 </div>
               </td>
             </tr>
-            <tr v-for="location in filteredLocations" 
+            <tr v-for="location in paginatedLocations" 
                 :key="location.id" 
                 class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                 @click="viewLocation(location.id)">
@@ -199,7 +210,7 @@ watch(searchQuery, () => {
           </button>
           <button 
             @click="nextPage" 
-            :disabled="locations.length < itemsPerPage"
+            :disabled="paginatedLocations.length < itemsPerPage"
             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next

@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import Swal from 'sweetalert2'
 
 // Fix for Leaflet default marker icons
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
@@ -21,8 +22,12 @@ const route = useRoute()
 const productId = route.params.id
 const forestProduct = ref(null)
 const locations = ref([])
+const allLocations = ref([]) // Store all existing locations
 const error = ref(null)
 const mapInstance = ref(null)
+const showLocationModal = ref(false)
+const selectedLocation = ref(null)
+const tempMarker = ref(null)
 
 const fetchForestProduct = async () => {
   let { data, error: fetchError } = await supabase
@@ -55,6 +60,18 @@ const fetchLocations = async () => {
   }
 }
 
+const fetchAllLocations = async () => {
+  let { data, error: fetchError } = await supabase
+    .from('location')
+    .select('*')
+
+  if (fetchError) {
+    error.value = fetchError.message
+  } else {
+    allLocations.value = data
+  }
+}
+
 const initializeMap = () => {
   if (mapInstance.value) {
     mapInstance.value.remove()
@@ -81,10 +98,108 @@ const initializeMap = () => {
   mapInstance.value.fitBounds(bounds)
 }
 
+const initializeModalMap = () => {
+  if (mapInstance.value) {
+    mapInstance.value.remove()
+  }
+
+  mapInstance.value = L.map("modalMap").setView([10.744340, 124.791995], 16);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19
+  }).addTo(mapInstance.value);
+
+  // Add existing location markers with tooltips
+  allLocations.value.forEach(location => {
+    L.marker([location.latitude, location.longitude])
+      .addTo(mapInstance.value)
+      .bindTooltip(location.name, {
+        permanent: true,
+        direction: 'top',
+        className: 'bg-white px-2 py-1 rounded shadow-lg'
+      })
+      .on('click', () => {
+        selectedLocation.value = location;
+        showLocationModal.value = false;
+        upsertLocation();
+      });
+  });
+
+  // Handle map click for new location
+  mapInstance.value.on('click', async (e) => {
+    if (tempMarker.value) {
+      mapInstance.value.removeLayer(tempMarker.value);
+    }
+
+    const { value: locationName } = await Swal.fire({
+      title: 'New Location',
+      input: 'text',
+      inputLabel: 'Enter location name',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (!value) return 'Location name is required';
+      }
+    });
+
+    if (locationName) {
+      const newLocation = {
+        name: locationName,
+        latitude: e.latlng.lat,
+        longitude: e.latlng.lng
+      };
+
+      const { data, error } = await supabase
+        .from('location')
+        .insert([newLocation])
+        .select()
+        .single();
+
+      if (error) {
+        Swal.fire('Error', error.message, 'error');
+      } else {
+        selectedLocation.value = data;
+        showLocationModal.value = false;
+        await upsertLocation();
+      }
+    }
+  });
+};
+
+const upsertLocation = async () => {
+  if (!selectedLocation.value) {
+    error.value = 'Please select a location';
+    return;
+  }
+
+  const { error: fpLocationError } = await supabase
+    .from('fp_and_location')
+    .upsert([{
+      forest_product_id: forestProduct.value.id,
+      location_id: selectedLocation.value.id
+    }]);
+
+  if (fpLocationError) {
+    error.value = fpLocationError.message;
+    return;
+  }
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Location Added',
+    text: 'The location has been successfully added to the forest product.',
+    timer: 2000,
+    showConfirmButton: false
+  }).then(() => {
+    fetchLocations();
+  });
+};
+
 onMounted(() => {
   fetchForestProduct()
+  fetchAllLocations()
 })
 </script>
+
 <template>
   <div class="max-w-4xl mx-auto p-6">
     <!-- Header Section -->
@@ -181,41 +296,73 @@ onMounted(() => {
           </div>
         </div>
       </div>
+<!-- Locations Section -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="p-6 flex justify-between items-center">
+    <h3 class="text-xl font-semibold text-gray-900 mb-4">Product Locations</h3>
+    
+    <!-- Add Location Button -->
+    <button 
+      v-if="locations.length === 0"
+      @click="showLocationModal = true; $nextTick(() => initializeModalMap())"
+      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+    >
+      Add Location
+    </button>
+  </div>
 
-      <!-- Locations Section -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="p-6">
-          <h3 class="text-xl font-semibold text-gray-900 mb-4">Product Locations</h3>
-          
-          <div class="grid gap-4 mb-6">
-            <div v-for="location in locations" 
-                 :key="location.id" 
-                 class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div class="flex items-center space-x-3">
-                <div class="p-2 bg-white rounded-md">
-                  <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="font-medium text-gray-900">{{ location.name }}</h4>
-                  <div class="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-500">
-                    <p>Lat: {{ location.latitude }}</p>
-                    <p>Long: {{ location.longitude }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+  <div class="grid gap-4 mb-6">
+    <div v-if="locations.length === 0" class="p-4 bg-gray-50 rounded-lg">
+      <p class="text-gray-500 text-center">This forest product doesn't have a registered location(s) yet.</p>
+    </div>
+    
+    <div v-for="location in locations" 
+         :key="location.id" 
+         class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-white rounded-md">
+          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div>
+          <h4 class="font-medium text-gray-900">{{ location.name }}</h4>
+          <div class="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-500">
+            <p>Lat: {{ location.latitude }}</p>
+            <p>Long: {{ location.longitude }}</p>
           </div>
-
-          <!-- Map Container -->
-          <div id="locationMap" class="h-[400px] w-full rounded-lg overflow-hidden border border-gray-200"></div>
         </div>
       </div>
     </div>
   </div>
-</template> 
+
+  <!-- Map Container -->
+  <div id="locationMap" class="h-[400px] w-full rounded-lg overflow-hidden border border-gray-200"></div>
+</div>
+    </div>
+
+    <!-- Map Modal -->
+    <div v-if="showLocationModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <div class="relative bg-white rounded-lg p-8 max-w-4xl w-full">
+          <h3 class="text-lg font-medium mb-4">Select Location</h3>
+          <div id="modalMap" class="h-[400px] w-full mb-4"></div>
+          <div class="flex justify-end">
+            <button
+              type="button"
+              @click="showLocationModal = false"
+              class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style>
 @import 'leaflet/dist/leaflet.css';

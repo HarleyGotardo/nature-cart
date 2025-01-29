@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 
 const router = useRouter()
-const forestProducts = ref([])
+const allForestProducts = ref([]) // Store all forest products
+const forestProducts = ref([]) // Store paginated forest products
 const error = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = 8
@@ -14,10 +15,7 @@ const createForestProduct = () => {
   router.push('/authenticated/forest-products/create')
 }
 
-const fetchForestProducts = async (page) => {
-  const start = (page - 1) * itemsPerPage
-  const end = start + itemsPerPage - 1
-
+const fetchAllForestProducts = async () => {
   let { data, error: fetchError } = await supabase
     .from('forest_products')
     .select(`
@@ -29,25 +27,31 @@ const fetchForestProducts = async (page) => {
         )
       )
     `)
-    .range(start, end)
 
   if (fetchError) {
     error.value = fetchError.message
   } else {
     // Transform the data to include locations
-    forestProducts.value = data.map(product => ({
+    allForestProducts.value = data.map(product => ({
       ...product,
       locations: product.fp_and_location.map(fp => fp.location)
     }))
+    paginateForestProducts()
   }
+}
+
+const paginateForestProducts = () => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  forestProducts.value = filteredForestProducts.value.slice(start, end)
 }
 
 const filteredForestProducts = computed(() => {
   if (!searchQuery.value) {
-    return forestProducts.value
+    return allForestProducts.value
   }
   const query = searchQuery.value.toLowerCase()
-  return forestProducts.value.filter(product =>
+  return allForestProducts.value.filter(product =>
     product.name.toLowerCase().includes(query) ||
     product.type.toLowerCase().includes(query) ||
     product.locations.some(location => location.name.toLowerCase().includes(query))
@@ -55,14 +59,16 @@ const filteredForestProducts = computed(() => {
 })
 
 const nextPage = () => {
-  currentPage.value++
-  fetchForestProducts(currentPage.value)
+  if ((currentPage.value * itemsPerPage) < filteredForestProducts.value.length) {
+    currentPage.value++
+    paginateForestProducts()
+  }
 }
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
-    fetchForestProducts(currentPage.value)
+    paginateForestProducts()
   }
 }
 
@@ -71,11 +77,16 @@ const viewProduct = (productId) => {
 }
 
 onMounted(() => {
-  fetchForestProducts(currentPage.value)
+  fetchAllForestProducts()
 })
 
 watch(searchQuery, () => {
-  fetchForestProducts(currentPage.value)
+  currentPage.value = 1 // Reset to first page on search query change
+  paginateForestProducts()
+})
+
+watch(currentPage, () => {
+  paginateForestProducts()
 })
 </script>
 
@@ -88,17 +99,19 @@ watch(searchQuery, () => {
         <p class="mt-1 text-sm text-gray-500">View and manage all registered forest products</p>
       </div>
       <div class="flex space-x-4">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search forest products..."
-          class="block w-full px-4 py-2 rounded-lg bg-white border border-gray-200 pl-11 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
-        />
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+        <div class="relative">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search forest products..."
+            class="block w-full px-4 py-2 rounded-lg bg-white border border-gray-200 pl-11 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
+          />
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
         <button 
           @click="createForestProduct"
@@ -147,7 +160,7 @@ watch(searchQuery, () => {
               </td>
             </tr>
             <tr 
-              v-for="product in filteredForestProducts" 
+              v-for="product in forestProducts" 
               :key="product.id" 
               class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
               @click="viewProduct(product.id)"
