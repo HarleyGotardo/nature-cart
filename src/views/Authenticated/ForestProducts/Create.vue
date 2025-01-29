@@ -29,6 +29,7 @@ const description = ref(SeparatorConstant.EMPTY_STRING);
 const type = ref(CommonConstant.SINGLE_STRING.T);
 const quantity = ref(SeparatorConstant.EMPTY_STRING);
 const price = ref(SeparatorConstant.EMPTY_STRING);
+const image = ref(null); // New image input
 const error = ref(null);
 const locations = ref([]);
 const selectedLocation = ref(null);
@@ -114,6 +115,10 @@ const initializeMap = () => {
   });
 };
 
+const handleImageChange = (event) => {
+  image.value = event.target.files[0];
+};
+
 const handleSubmit = async () => {
   if (!selectedLocation.value) {
     error.value = 'Please select a location';
@@ -122,6 +127,35 @@ const handleSubmit = async () => {
 
   const currentDate = new Date();
   const formattedDate = format(currentDate, CommonConstant.DATE_FORMAT.ISO_8601);
+
+  let imageUrl = null;
+
+  // Upload image to Supabase bucket using S3 protocol
+  if (image.value) {
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('forest_product_images')
+      .upload(`public/${Date.now()}_${image.value.name}`, image.value, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: image.value.type,
+        endpoint: 'https://cikbihrqwkfgvkrdgmqi.supabase.co/storage/v1/s3',
+        region: 'ap-southeast-1'
+      });
+
+    if (uploadError) {
+      error.value = uploadError.message;
+      return;
+    }
+
+    imageUrl = supabase
+      .storage
+      .from('forest_product_images')
+      .getPublicUrl(uploadData.path);
+
+
+    console.log('Image URL:', imageUrl);
+  }
 
   // Insert forest product
   const { data: fpData, error: fpError } = await supabase
@@ -132,6 +166,7 @@ const handleSubmit = async () => {
       type: type.value,
       quantity: quantity.value,
       price: price.value,
+      image_url: imageUrl, // Store image URL
       created_at: formattedDate,
       updated_at: formattedDate,
     }])
@@ -227,8 +262,8 @@ onMounted(() => {
           required
           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
         >
-          <option value="T">Timber</option>
-          <option value="NT">Non-Timber</option>
+          <option value="Timber">Timber</option>
+          <option value="Non-Timber">Non-Timber</option>
         </select>
       </div>
 
@@ -243,6 +278,17 @@ onMounted(() => {
           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
         />
       </div>
+
+<!-- Image input -->
+<div>
+  <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
+  <input
+    id="image"
+    type="file"
+    @change="handleImageChange"
+    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+  />
+</div>
 
       <!-- Location select with map -->
       <div>
@@ -303,4 +349,23 @@ onMounted(() => {
 
 <style>
 @import 'leaflet/dist/leaflet.css';
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
