@@ -32,13 +32,21 @@ const tempMarker = ref(null)
 const fetchForestProduct = async () => {
   let { data, error: fetchError } = await supabase
     .from('forest_products')
-    .select('id, created_at, updated_at, name, description, price, quantity, type')
+    .select('*')
     .eq('id', productId)
     .single()
 
   if (fetchError) {
     error.value = fetchError.message
   } else {
+    if (data.image_url) {
+      try {
+        const imageUrlData = JSON.parse(data.image_url)
+        data.image_url = imageUrlData.data.publicUrl
+      } catch (e) {
+        console.error('Error parsing image_url:', e)
+      }
+    }
     forestProduct.value = data
     fetchLocations()
   }
@@ -232,7 +240,12 @@ onMounted(() => {
             <h3 class="text-2xl font-semibold text-gray-900">{{ forestProduct.name }}</h3>
             <span class="text-sm text-gray-500">ID: {{ forestProduct.id }}</span>
           </div>
-          
+
+          <!-- Image Section -->
+          <div v-if="forestProduct.image_url" class="mb-6">
+  <img :src="forestProduct.image_url" alt="Forest Product Image" class="w-full h-auto rounded-lg shadow-sm">
+</div>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Left Column -->
             <div class="space-y-4">
@@ -296,50 +309,51 @@ onMounted(() => {
           </div>
         </div>
       </div>
-<!-- Locations Section -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-  <div class="p-6 flex justify-between items-center">
-    <h3 class="text-xl font-semibold text-gray-900 mb-4">Product Locations</h3>
-    
-    <!-- Add Location Button -->
-    <button 
-      v-if="locations.length === 0"
-      @click="showLocationModal = true; $nextTick(() => initializeModalMap())"
-      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-    >
-      Add Location
-    </button>
-  </div>
 
-  <div class="grid gap-4 mb-6">
-    <div v-if="locations.length === 0" class="p-4 bg-gray-50 rounded-lg">
-      <p class="text-gray-500 text-center">This forest product doesn't have a registered location(s) yet.</p>
-    </div>
-    
-    <div v-for="location in locations" 
-         :key="location.id" 
-         class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-      <div class="flex items-center space-x-3">
-        <div class="p-2 bg-white rounded-md">
-          <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+      <!-- Locations Section -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 flex justify-between items-center">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Product Locations</h3>
+          
+          <!-- Add Location Button -->
+          <button 
+            v-if="locations.length === 0"
+            @click="showLocationModal = true; $nextTick(() => initializeModalMap())"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            Add Location
+          </button>
         </div>
-        <div>
-          <h4 class="font-medium text-gray-900">{{ location.name }}</h4>
-          <div class="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-500">
-            <p>Lat: {{ location.latitude }}</p>
-            <p>Long: {{ location.longitude }}</p>
+
+        <div class="grid gap-4 mb-6">
+          <div v-if="locations.length === 0" class="p-4 bg-gray-50 rounded-lg">
+            <p class="text-gray-500 text-center">This forest product doesn't have a registered location(s) yet.</p>
+          </div>
+          
+          <div v-for="location in locations" 
+               :key="location.id" 
+               class="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div class="flex items-center space-x-3">
+              <div class="p-2 bg-white rounded-md">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-900">{{ location.name }}</h4>
+                <div class="mt-1 grid grid-cols-2 gap-2 text-sm text-gray-500">
+                  <p>Lat: {{ location.latitude }}</p>
+                  <p>Long: {{ location.longitude }}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Map Container -->
-  <div id="locationMap" class="h-[400px] w-full rounded-lg overflow-hidden border border-gray-200"></div>
-</div>
+        <!-- Map Container -->
+        <div id="locationMap" class="h-[400px] w-full rounded-lg overflow-hidden border border-gray-200"></div>
+      </div>
     </div>
 
     <!-- Map Modal -->
