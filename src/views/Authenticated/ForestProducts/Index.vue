@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -7,7 +7,12 @@ const router = useRouter()
 const forestProducts = ref([])
 const error = ref(null)
 const currentPage = ref(1)
-const itemsPerPage = 8;
+const itemsPerPage = 8
+const searchQuery = ref('')
+
+const createForestProduct = () => {
+  router.push('/authenticated/forest-products/create')
+}
 
 const fetchForestProducts = async (page) => {
   const start = (page - 1) * itemsPerPage
@@ -37,6 +42,18 @@ const fetchForestProducts = async (page) => {
   }
 }
 
+const filteredForestProducts = computed(() => {
+  if (!searchQuery.value) {
+    return forestProducts.value
+  }
+  const query = searchQuery.value.toLowerCase()
+  return forestProducts.value.filter(product =>
+    product.name.toLowerCase().includes(query) ||
+    product.type.toLowerCase().includes(query) ||
+    product.locations.some(location => location.name.toLowerCase().includes(query))
+  )
+})
+
 const nextPage = () => {
   currentPage.value++
   fetchForestProducts(currentPage.value)
@@ -56,6 +73,10 @@ const viewProduct = (productId) => {
 onMounted(() => {
   fetchForestProducts(currentPage.value)
 })
+
+watch(searchQuery, () => {
+  fetchForestProducts(currentPage.value)
+})
 </script>
 
 <template>
@@ -65,6 +86,26 @@ onMounted(() => {
       <div>
         <h2 class="text-2xl font-bold text-gray-900">Forest Products</h2>
         <p class="mt-1 text-sm text-gray-500">View and manage all registered forest products</p>
+      </div>
+      <div class="flex space-x-4">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search forest products..."
+          class="block w-full px-4 py-2 rounded-lg bg-white border border-gray-200 pl-11 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
+        />
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <button 
+          @click="createForestProduct"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          +
+        </button>
       </div>
     </div>
 
@@ -94,8 +135,19 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
+            <tr v-if="filteredForestProducts.length === 0">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center">
+                  <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <p class="text-gray-500 text-sm">No forest products found matching your criteria</p>
+                </div>
+              </td>
+            </tr>
             <tr 
-              v-for="product in forestProducts" 
+              v-for="product in filteredForestProducts" 
               :key="product.id" 
               class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
               @click="viewProduct(product.id)"

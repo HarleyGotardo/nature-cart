@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -8,6 +8,7 @@ const locations = ref([])
 const error = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = 7
+const searchQuery = ref('')
 
 const fetchLocations = async (page) => {
   const start = (page - 1) * itemsPerPage
@@ -25,6 +26,18 @@ const fetchLocations = async (page) => {
   }
 }
 
+const filteredLocations = computed(() => {
+  if (!searchQuery.value) {
+    return locations.value
+  }
+  const query = searchQuery.value.toLowerCase()
+  return locations.value.filter(location =>
+    location.name.toLowerCase().includes(query) ||
+    location.latitude.toString().includes(query) ||
+    location.longitude.toString().includes(query)
+  )
+})
+
 const nextPage = () => {
   currentPage.value++
   fetchLocations(currentPage.value)
@@ -41,10 +54,19 @@ const viewLocation = (locationId) => {
   router.push(`/authenticated/locations/${locationId}`)
 }
 
+const createLocation = () => {
+  router.push('/authenticated/locations/create')
+}
+
 onMounted(() => {
   fetchLocations(currentPage.value)
 })
+
+watch(searchQuery, () => {
+  fetchLocations(currentPage.value)
+})
 </script>
+
 <template>
   <div class="max-w-7xl mx-auto p-6">
     <!-- Header Section -->
@@ -52,6 +74,28 @@ onMounted(() => {
       <div>
         <h2 class="text-2xl font-bold text-gray-900">Locations</h2>
         <p class="mt-1 text-sm text-gray-500">View and manage all registered locations</p>
+      </div>
+      <div class="flex space-x-4">
+        <div class="relative">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search locations..."
+            class="block w-full px-4 py-2 rounded-lg bg-white border border-gray-200 pl-11 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors duration-200"
+          />
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+        <button 
+          @click="createLocation"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          +
+        </button>
       </div>
     </div>
 
@@ -79,7 +123,18 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="location in locations" 
+            <tr v-if="filteredLocations.length === 0">
+              <td colspan="4" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center">
+                  <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <p class="text-gray-500 text-sm">No locations found matching your criteria</p>
+                </div>
+              </td>
+            </tr>
+            <tr v-for="location in filteredLocations" 
                 :key="location.id" 
                 class="hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                 @click="viewLocation(location.id)">
