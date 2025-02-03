@@ -16,7 +16,7 @@ const createForestProduct = () => {
 }
 
 const fetchAllForestProducts = async () => {
-  let { data, error: fetchError } = await supabase
+  let { data: forest_products, error: fetchError } = await supabase
     .from('forest_products')
     .select(`
       *,
@@ -25,16 +25,20 @@ const fetchAllForestProducts = async () => {
           id,
           name
         )
+      ),
+      measurement_units:measurement_unit_id (
+        unit_name
       )
     `)
 
   if (fetchError) {
     error.value = fetchError.message
   } else {
-    // Transform the data to include locations
-    allForestProducts.value = data.map(product => ({
+    // Transform the data to include locations and measurement unit symbol
+    allForestProducts.value = forest_products.map(product => ({
       ...product,
-      locations: product.fp_and_location.map(fp => fp.location)
+      locations: product.fp_and_location.map(fp => fp.location),
+      unit_name: product.measurement_units ? product.measurement_units.unit_name : 'N/A'
     }))
     paginateForestProducts()
   }
@@ -143,13 +147,15 @@ watch(currentPage, () => {
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Measurement Unit</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Locations</th>
               <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr v-if="filteredForestProducts.length === 0">
-              <td colspan="6" class="px-6 py-12 text-center">
+              <td colspan="8" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center">
                   <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -191,6 +197,16 @@ watch(currentPage, () => {
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">
                   {{ product.quantity }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  {{ product.unit_name }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">
+                  {{ product.price }} per {{ product.unit_name }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
